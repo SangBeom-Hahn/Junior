@@ -13,3 +13,21 @@ for i in range(len(li) - 1):
 
 print(li)
 
+# 재귀 버전
+l = [2,3,5,1,4]
+l2 = list()
+
+def select(l):
+    if(len(l) == 1):
+        return l[0]
+
+    big = max(l)
+    idx = l.index(big)
+    l[0], l[idx] = l[idx], l[0]
+
+    l2.append(select(l[1:]))
+    return l[0]
+
+l2.append(select(l))
+print(l2)
+
