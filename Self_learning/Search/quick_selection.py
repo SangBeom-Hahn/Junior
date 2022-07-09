@@ -1,64 +1,42 @@
-l = [1,10,9,19,20,2,12,5,15,3,13,4,14,7,17,8,18,16,6,11]
-# l = [5, 2, 1, 7, 4, 3, 9, 6, 8, 12, 11, 10]
-# l = [5, 2, 1, 7, 4, 3, 6]
+'''
+질문 : 아니 이진탐색은 정렬된 상태만 되는 거 아님? 이것도 중간에서 나누는 것만 아니지 2진이라고 볼 수 있잖아
+답변 : 퀵 정렬의 특징이 피봇을 기준으로 양 옆에 크고 작은 값이 나뉜다는 거잖아 이진 탐색이
+정렬된 상태에서만 되는 이유는 중간 값을 잡았는데 왼쪽에 크고 작은 값이 섞여있으면 대소비교를 못하니 그래
+근데 퀵셀렉은 파티션 과정에서 완벽하게 나뉘니 대소비교가 되어서 탐색이 가능한 거다
++ 파티션으로 언젠가는 다 정렬이 되네
+'''
 
-def part(l, p):
-    p = l.index(p)
-    l[len(l)-1], l[p] = l[p], l[len(l)-1]
-    L = -1
+l = [1,2,7,5,4,8,3,9]
 
-    for i in range(len(l)-1):
-        if(l[i] < l[len(l)-1]):
-            L+=1
-            l[i], l[L] = l[L], l[i]
-    l[len(l)-1], l[L+1] = l[L+1], l[len(l)-1]
+def part(l):
+    p = len(l)//2 #파티션의 인덱스
+    checkL = -1
+    n = len(l) - 1
 
-    return L+1
+    l[p], l[n] = l[n], l[p]
 
-def quick(l, k):
-    m = mom(l) # 피봇 13으로 함
-    p = part(l, m) # p는 피봇 인덱스임 12
+    for i in range(len(l)):
+        if(l[i]<l[n]):
+            checkL+=1
+            l[checkL], l[i] = l[i], l[checkL]
 
-    if(k < p): #
-        return quick(l[:p], k)
-    elif(k > p):
-        return quick(l[p+1:], k-p-1)
+    l[checkL+1], l[n] = l[n], l[checkL+1]
+
+    return l, checkL+1
+
+def QS(l, k):
+    if(len(l) == 1 and l[0] != k):
+        print("noop")
+        return
+
+    l, p = part(l)
+
+    if(l[p] == k):
+        print("find")
+        return
+    elif(l[p] > k):
+        QS(l[:p], k)
     else:
-        return l[p]
+        QS(l[p+1:], k)
 
-def mom(l):
-    l3 = []
-    sort_List = sorted(l)
-    if(len(sort_List) <= 5):
-        return sort_List[len(sort_List) // 2]
-    for i in sort_List:
-        if(sort_List.index(i) % 5 == 2):
-            l3.append(i)
-
-    return mom(l3)
-
-print(quick(l, 3))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def quick(l, k):
-#     p = part(l, k)
-#
-#     if(k < p):
-#         return quick(l[:p], 5)
-#     elif(k > p):
-#         return quick(l[p:], 5)
-#     else:
-#         return l[p]
+QS(l, 111)
