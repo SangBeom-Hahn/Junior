@@ -25,18 +25,18 @@ def part(l):
     return l, checkL+1
 
 def QS(l, k):
-    if(len(l) < k):
+    if(len(l) == 1 and l[0] != k):
         print("noop")
         return
 
     l, p = part(l)
 
-    if(p+1 == k):
-        print(l[p])
+    if(l[p] == k):
+        print("find")
         return
-    elif(p+1 > k):
+    elif(l[p] > k):
         QS(l[:p], k)
     else:
-        QS(l[p+1:], k-len(l[:p+1]))
+        QS(l[p+1:], k)
 
-QS(l, 8)
+QS(l, 111)
