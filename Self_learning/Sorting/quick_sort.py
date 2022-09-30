@@ -1,8 +1,3 @@
-l = [2,1,3]
-
-# def swap(a, b):
-#     a, b = b, a
-
 def quick_Sort(l):
     if(len(l) <= 1):
         return l
@@ -32,6 +27,13 @@ def quick_Sort(l):
 
     return l_L+l_P+l_R
 
-quick_Sort(l)
 
-print(l)
+'''
+test.py
+
+from main import quick_Sort
+
+print(quick_Sort([2, 1, 3, 5, 4]))
+
+'''
+
