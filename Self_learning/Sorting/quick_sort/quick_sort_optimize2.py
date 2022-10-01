@@ -30,20 +30,16 @@ def quick_Sort(l, flag):
         l[L+1], l[n] = l[n], l[L+1]
 
 
-        l_L = quick_Sort(l[:L+1])
-        l_R = quick_Sort(l[L+2:])
+        l_L = quick_Sort(l[:L+1], flag)
+        l_R = quick_Sort(l[L+2:], flag)
         l_P = list(map(int, str(l[L + 1])))
-
-        print(l_L)
-        print(l_P)
-        print(l_R)
 
         return l_L+l_P+l_R
 
 def mom(l):
     momArr = []
     if (len(l) < 5):
-        return l[len(l) // 2]
+        return len(l) // 2
 
     for i in range(len(l)):
         if (i % 5 == 2):
