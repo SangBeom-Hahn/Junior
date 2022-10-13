@@ -1,3 +1,5 @@
+//자료구조를 공부하기 전 코드보다 for문 두개를 줄임!!
+
 n = int(input())
 arrMatrix = []
 for i in range(n):
