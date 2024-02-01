@@ -1,24 +1,23 @@
+# 솔루션 내가 맥스보다 작으면 팔아 내가 맥스보다 크면 내가 맥스가 돼
+# 근데 이걸 앞에서부터 하면 
+
+import heapq
 import sys
-
-def back(start, store):
-    global cnt
-
-    if(sum(store) == s and len(store) > 0): # s와 같은 이후로도 다시 s와 같아질 수 있으므로 return 없음
-        # print(store)
-        cnt += 1
-
-
-    for i in range(start, len(arr)):
-        if(not used[i]):
-            store.append(arr[i])
-            back(i+1, store)
-            store.pop()
-
 input = sys.stdin.readline
-n, s = map(int, input().split())
-arr = list(map(int, input().split()))
-used = [False] * n
-cnt = 0
-
-back(0, [])
-print(cnt)
+# 5       3 5 9 6 2
+t = int(input())
+for _ in range(t):
+    n = int(input())
+    moneys = list(map(int, input().split()))
+    moneys.append(10001)
+    max = 0
+    result = 0
+    stackMoney = []
+    
+    for i in range(n-1, -1, -1):
+        if(moneys[i] >= max):
+            max = moneys[i]
+        else:
+            result += (max-moneys[i])
+            
+    print(result)
