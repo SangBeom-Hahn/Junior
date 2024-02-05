@@ -1,113 +1,124 @@
 '''
-하나의 줄기 세포 1x1 정사각형 크기로 존재, 각 줄기 세포는 생명력이 있다.
-1) 초기 상태에서 줄기 세포들은 비활성 상태로 생명력 수치가 X인 세포의 경우 X시간 동안 비활성 상태이고
-X시간이 지나는 순간 활성 상태가 된다.
-2) 근데 또 활성 상태가 되면 X시간 동안 살아있을 수 있고
-X시간이 지나면 죽는다.(즉 비활성 상태 X시간 > 활성 상태 X시간 > X시간 후 죽음)
-3) 세포가 죽더라도 셀을 차지한다.
-4) 활성화된 세포는 첫 1시간 동안 상, 하, 좌, 우 네 방향으로 번식한다. 번식한 줄기세포는
-비활성 상태이다.
-5) 번식하는 방향에 이미 세포가 있으면 번식 못한다.(한 셀에 하나만 가능)
-6) 두개 이상의 세포가 하나의 셀에 동시 번식하려는 경우 OXO X로 번식하려는 경우  생명력이 높은
-세포가 혼자서 차지한다.
-
-
+nxn 크기에 사탕이 있다. 색이 다른 인접한 두칸을 고른다.고른칸에 있는 사탕을 서로 교환한다.
+모두 같은 색으로 이루어져있는 가장 긴 행 또는 열 연속 부분을 고른 다음 그 사탕을 모두 먹는다.
+1직선만 인정한다.
 
 1. 모경수
-1) 처음 상태가 있고 번식시킬 맵이 따로 있다. 왜냐면 초기 상태는 번식된게 아니고 활성화 + 1시간에
-번식되는 거니 초기 상태는 그냥 입력 받는 용도이고 실제퍼지는 곳은 번식시킬 맵이다.
-2) 활성화 및 비 활성화 줄기 세포 저장소가 필요하다. 모든 세포를 여기에 저장할 거다.
-K 초동안 이 저장소를 계속 확인해서 화설화+1 시간에 해당하는 애만 상하좌우로 번식시킨다.
-근데 이때 생명령으로 내림차순해서 생명력이 큰 애들 먼저 번식하게 만든다.
+ccp
+ccp
+ppc
 
--> 이 문제는 뭐가 어려웠냐?
-1) BFS인 건 알겠어 근데 토마토의 경우에는 1초마다 무조건 계속 번식이 일어나서 초기위치부터 큐에 넣을 때마다
-초 증가시키면서 번식시키면 돼 근데 얘는 일단 활성화되고 1시간 후에 번식이 일어나 근데 활성화 되는
-타이밍이 세포마다 다 달라 그래서 토마토처럼 무조건으로 번식하는게 아니라 따질 조건이 엄청 많다
+ccp
+ccp
+pcp
 
-2) 번식 문제에서 큐에 들어 있는 건 (nx, ny)이렇게 들어 있을 텐데 그 좌표에 번식 될 것을 의미한다.
-그니깐 큐에 있는 것들은 그 좌표에 번식이 확정된 것들이야 이걸 토마토에서는 graph에도 1로 표시하고
-큐에도 넣어줬어 큐에 넣는 행위가 번식을 확정하는 거고 팝을 하는 행위가 그 자리에서 다시 번식함을
-의미해
+1) 2중 for로 훑으면서, 아래, 우가 색이 다르면 바꾼다. 
+= 한 칸에서 2번씩 다르면 바꾸고 검사하는 거임
 
-3)그러면 여기서도 그래프에 값을 표시해야하고 큐에도 넣어줘야 하며 토마토는 무조건 팝해서 그 자리에서
-다시 번식함을 나타냈는데 여기서는 조건을 만족하는 애만 팝해서 번식해줘야 해
+2) 가장 우측, 가장 아래까지 훑는데, 가장 아래에서는 우만, 가장 오른에서는 아래만 교환
+3) 그리고 바꾼 픽셀의 행 열을 체크함
 
-4) 그러면 pop을 안하고 그 큐를 훑어서 조건에 만족하는 애만 bfs를 돌리는 거야 즉 먼저 들어온 걸
-먼저 번식하는 토마토 문제와 달리 이 문제는 나중에 들어온게 먼저 번식될 수 있어 
-ex) 먼저 들어온 생명력 9짜리보다 나중에 들어온 생명력 1이 먼저 번식 가능
+* n : 보드의 크기
+보드에 채워진 사탕의 색상 빨파초노 C P Z Y
+출력 : 상근이가 먹을 수 있는 사탕의 최대 개수
 
-5) 최종 정리
-0] 번식을 표시할 graph와 번식할 좌표를 보관할 저장소(큐)가 필요하다는 것
-1] 큐에 넣은 건 해당 좌표로 번식할 거라는 것
-2] 큐에 넣으면 해당 좌표로 번식을 확정 짓는 것이고 그래프에 그리는 건 번식하는 것
-3] 큐에 있는 번식을 확정 지은 애들 중에서 조건에 맞는 애만 bfs를 돌릴 수 있다는 것
-
-
-1. 모경수
-1) 초기상태를 큐에 넣어, 그래프에도 표시해
-2) 그 큐를 계속 돌아서 조건에 맞으면 번식해
-3) 조건은 X*2 = 비활 /X = 활 / X-1= 번식 / 0은 죽음
-4) 0이 아닌 세포들의 개수를 세면 되겠다. r그래프에는 X 넣고 큐에 2X 넣어서
-마지막에 큐를 확인해서 0이 아닌 세포 세면 되겠다.
-
-* t : 테케수
-n, m, k : 줄기 세포가 분포된 크기 nxm, 배양시간
-n개의 줄에 그리드 셀 정보(1~10은 생명력, 0=줄기세포 없는 그리드)
+2. 시복 : n^2
 '''
-from collections import deque
 
+n = int(input())
+board = [list(input()) for _ in range(n)]
+fin_max_cnt = 0
 
-def bfs(i, j, tmpCells):
-    for k in range(4):
-        nx = i + dx[k]
-        ny = j + dy[k]
+# print(board)
 
-        if(space[nx][ny] == -1): # 번식하지 않은 곳이면
-            tmpCells.append([nx, ny, space[i][j] * 2, space[i][j]])
-            space[nx][ny] = space[i][j]
+# 행 검사
+def check_raw(raw):
+    global fin_max_cnt
+    max_seq_cnt = 0
+    
+    each_cnt = 1
+    for i in range(n-1): #ccp
+        if(board[raw][i] == board[raw][i+1]):
+            each_cnt += 1
+        else:
+            if(max_seq_cnt < each_cnt):
+                max_seq_cnt = each_cnt
+                each_cnt = 1
+        # print(board[raw][i], each_cnt)
+    
+    if(max_seq_cnt < each_cnt):
+        max_seq_cnt = each_cnt
+        each_cnt = 1
+     
+    if(fin_max_cnt < max_seq_cnt):           
+        fin_max_cnt = max_seq_cnt
+        
+# 열 검사
+def check_col(col):
+    global fin_max_cnt
+    max_seq_cnt = 0
+    
+    each_cnt = 1
+    for i in range(n-1): #ccp
+        if(board[i][col] == board[i+1][col]):
+            each_cnt += 1
+        else:
+            if(max_seq_cnt < each_cnt):
+                max_seq_cnt = each_cnt
+                each_cnt = 1
+        # print(board[raw][i], each_cnt)
+        
+    if(max_seq_cnt < each_cnt):
+        max_seq_cnt = each_cnt
+        each_cnt = 1
+     
+    if(fin_max_cnt < max_seq_cnt):           
+        fin_max_cnt = max_seq_cnt
+    
 
-    return tmpCells
-
-dx = [-1, 1, 0, 0]
-dy = [0, 0, -1, 1]
-n, m, k = map(int, input().split())
-graph = [list(map(int, input().split())) for _ in range(n)]
-cells = [] # 모든 세포를 저장할 저장소
-maxSize = 380
-space = [[-1] * maxSize for _ in range(maxSize)]
-start = maxSize // 2
-
-# 초기 상태를 표시
+# for i in range(n-1):
+#     for j in range(n-1):
 for i in range(n):
-    for j in range(m):
-        if(graph[i][j] == 0):
-            continue
-        space[start+i][start+j] = graph[i][j] # 그래프에 표시하고
-        cells.append([start+i, start+j, graph[i][j]*2, graph[i][j]]) # X와 X*2를 초기상태로 넣음
-
-# 그 큐를 계속 돌아서 조건에 맞으면 번식해
-# 3) 조건은 X*2 = 비활 /X = 활 / X-1= 번식 / 0은 죽음
-for _ in range(k):
-    print(cells)
-    cells.sort(key=lambda x:(-x[3]))
-    tmpCells = []
-    for idx, (x, y, twoX, X) in enumerate(cells):
-        print(idx, x, y, twoX, X, space[x][y])
-        if(twoX == space[x][y]-1):
-            # 번식
-            bfs(x, y, tmpCells)
-        if (twoX == 0):  # 0이면 죽은 세포
-            continue
-        tmpCells.append([x, y, twoX-1, X])
-    cells = tmpCells
-
-
-cnt = 0
-# cell을 돌며너 twoX가 0이 아닌 애들의 개수를 세면??
-
-for ele in cells:
-    if(ele[2] != 0):
-        cnt += 1
-# print(len(cells))
-print(cnt)
+    for j in range(n):
+        # 가장 아래이면, 아래 안 봄
+        if(i != n-1):
+            # 아래
+            if(board[i][j] != board[i+1][j]):
+                # 바꾸고
+                board[i][j], board[i+1][j] = board[i+1][j], board[i][j]
+            
+        # 행 검사
+        check_raw(i)
+                            
+        # 열 검사
+        check_col(j)
+        # print(*board, sep='\n')
+            
+        
+        # 원상복구
+        if(i != n-1):
+            if(board[i][j] != board[i+1][j]):
+                # 바꾸고
+                board[i][j], board[i+1][j] = board[i+1][j], board[i][j]
+                
+        # 우
+        if(j != n-1):
+            if(board[i][j] != board[i][j+1]):
+                # 바꾸고
+                board[i][j], board[i][j+1] = board[i][j+1], board[i][j]
+                
+        # 행 검사
+        check_raw(i)
+                            
+        # 열 검사
+        check_col(j)
+        # print(i, j, fin_max_cnt)
+        
+        
+        # 우
+        if(j != n-1):
+            if(board[i][j] != board[i][j+1]):
+                # 바꾸고
+                board[i][j], board[i][j+1] = board[i][j+1], board[i][j]        
+                
+print(fin_max_cnt)                
