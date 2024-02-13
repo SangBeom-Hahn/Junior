@@ -1,48 +1,58 @@
 '''
-수빈이는 현재 점 n에 있고 동생은 k에 있다. 수빈이는 걸으면 1초 후에 x-1, x+1로 이동하게 되고,
-순간이동을 하는 경우네느 0초 후에 2*x로 이동한다. 
+한수는 왼쪽 아래점에 있고 집은 오른쪽 위에 있다. 한수가 집에 가는 방법은 다양하다.
+한번 지나친 곳은 다시 방문하지 않는다. 맵에 못하는 부분이 주어지고 거리가 주어질 때
+한수가 집에 도착하는 경우 중 거리가 k인 가짓수를 구하라
 
 1. 모경수
-1) bfs로 방문 탐색
+1) dfs로 방문 탐색
+2) 한수 위치 = r-1, 0 / 집 = 0, c-1
+3) dfs로 돌면서 cnt를 재귀로 주고 집이면 k와 비교함
+4) 반환하면 방문한 곳을 f로 해야겠다.
 
-* n, k : 수빈, 동생 위치
-출력 : 동생을 찾는 가장 빠른 시간
-
-2. 시복 : nlogn
+* r, c, k : rxc 맵, 거리
+출력 : 거리가 k인 가짓수
+2. 시복 : n^3
 '''
+
 from collections import deque
 
-def bfs(start):
-    q = deque()
-    q.append(start)
-    dis[start] = 0
+def bfs(hansu_x, hansu_y, cnt):
+    global result
     
-    while(q):
-        x = q.popleft()
-        if(x == k):
-            print(dis[x])
-            break
+    if(hansu_x == 0 and hansu_y == c-1):
+        if(cnt == k):
+            # print(*visit, sep = '\n')
+            # print()
+            result += 1
+    
+    visit[hansu_x][hansu_y] = True
+    
+    for i in range(4):
+        nx = hansu_x + dx[i]
+        ny = hansu_y + dy[i]
         
-        # 0초 먼저
+        if(nx < 0 or ny < 0 or nx >= r or ny >= c):
+            continue
         
-        if(2*x > 100000):
-            pass
-        else:
-            if(dis[2*x] > dis[x]):
-                dis[2*x] = dis[x]
-                q.append(2*x)
-        
-        # 걷기    
-        for i in [-1, 1]:
-            nx = x + i
-            if(nx < 0 or nx > 100000):
-                continue
+        if(not visit[nx][ny]):# 집 전
+            bfs(nx, ny, cnt+1)
             
-            if(dis[nx] > dis[x]+1):
-                dis[nx] = dis[x]+1
-                q.append(nx)
+    visit[hansu_x][hansu_y] = False # 리턴할 때 f
+    
+dx = [-1, 1, 0, 0]
+dy = [0, 0, -1, 1]
+r, c, k = map(int, input().split())
+graph = [list(input()) for _ in range(r)]
+visit = [[False] * c for _ in range(r)]
+result = 0
 
-n, k = map(int, input().split())
-dis = [100001] * 100001
+for i in range(r):
+    for j in range(c):
+        if(graph[i][j] == 'T'):
+            visit[i][j] = True
 
-bfs(n)
+# print(*graph, sep='\n')
+
+bfs(r-1, 0, 1)
+
+print(result)
