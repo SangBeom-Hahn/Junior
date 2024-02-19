@@ -1,23 +1,20 @@
-# 솔루션 내가 맥스보다 작으면 팔아 내가 맥스보다 크면 내가 맥스가 돼
-# 근데 이걸 앞에서부터 하면 
+'''
 
-import heapq
-import sys
-input = sys.stdin.readline
-# 5       3 5 9 6 2
-t = int(input())
-for _ in range(t):
-    n = int(input())
-    moneys = list(map(int, input().split()))
-    moneys.append(10001)
-    max = 0
-    result = 0
-    stackMoney = []
-    
-    for i in range(n-1, -1, -1):
-        if(moneys[i] >= max):
-            max = moneys[i]
+'''
+
+
+def can_finish(sizes, limits, tasks):
+    result = []
+    for i in range(len(sizes)):
+        k, t = int(tasks[i][0]), tasks[i][1:]
+        time_needed = k * (sizes[i] ** len(t))
+        if time_needed <= limits[i]:
+            result.append(1)
         else:
-            result += (max-moneys[i])
-            
-    print(result)
+            result.append(0)
+    return result
+
+sizes = [100, 100, 100]
+limits = [1000000000, 100, 3]
+tasks = ['9tttt', '1t', '4']
+print(can_finish(sizes, limits, tasks))
