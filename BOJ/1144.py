@@ -1,124 +1,159 @@
 '''
-nxn 크기에 사탕이 있다. 색이 다른 인접한 두칸을 고른다.고른칸에 있는 사탕을 서로 교환한다.
-모두 같은 색으로 이루어져있는 가장 긴 행 또는 열 연속 부분을 고른 다음 그 사탕을 모두 먹는다.
-1직선만 인정한다.
+루트 노드가 설정되지 않은 1개 이상의 트리가 있다. 모든 노드는 서로 다른 번호를 가진다.
+노드 : 홀수, 짝, 역홀, 역짝 노드 중 하나
 
-1. 모경수
-ccp
-ccp
-ppc
+홀수 노드 : 노드의 번호가 홀수이며 자식 노드의 개수가 홀수
+짝 : 노드의 번호가 짝수이며 자식 노드 개수 짝수(0=짝수)
+역홀 : 노드 번호가 홀수이며 자식 노드 개수가 짝수
+역짝 : 노 번 = 짝수, 자식 노드 개수 홀수
 
-ccp
-ccp
-pcp
+각 트리에 루트 노드를 설정했을 때 홀짝 트기가 될 수 있는 트리의 개수와 역홀짝 트리가
+될 수 있는 트리의 개수를 구하려고 한다.
 
-1) 2중 for로 훑으면서, 아래, 우가 색이 다르면 바꾼다. 
-= 한 칸에서 2번씩 다르면 바꾸고 검사하는 거임
+홀짝 트리 : 홀수노드와 짝수노드로만 이루어진 트리
+역홀짝 트리 : 역 홀수, 역 짝수 노드로만 이루어진 트리
 
-2) 가장 우측, 가장 아래까지 훑는데, 가장 아래에서는 우만, 가장 오른에서는 아래만 교환
-3) 그리고 바꾼 픽셀의 행 열을 체크함
+ex) 2, 3, 4, 6 노드
+루트노드    홀짝트리    역홀짝
+3           1           0
 
-* n : 보드의 크기
-보드에 채워진 사탕의 색상 빨파초노 C P Z Y
-출력 : 상근이가 먹을 수 있는 사탕의 최대 개수
+3
+246 
+-> 3은 노드 번호가 홀수이고 자식 노드 개수가 홀수라 홀수 노드
+2,4, 6이 노드 번호가 짝수이고 자식 노드 개수가 0이라 짝수 개라 다 짝수 노드
+따라서 3을 루트 노드로 하면 홀짝 트리가 됨
 
-2. 시복 : n^2
+간선 정보 유추 : 위 문제로 보아 [2, 3] [3, 4] [4, 6]
+
+1. 모경수(prt, n=1)
+0) 모든 노드를 돌아가면서 루트로 둔다.
+1) 각 노드를 훑는다.
+2) 각 노드의 본인의 노드 번호가 홀짝인지 체크
+    1] 본인의 노드 번호가 홀
+        자식 노드 개수가 홀 -> 홀수노드
+        자식 노드 개수가 짝 -> 역홀수노드
+    2] 본인의 노드 번호가 짝
+        자식 노드 개수가 홀 -> 역짝수노드
+        자식 노드 개수가 짝 -> 짝수노드
+        
+짝, 홀, 역홀, 역짝노드의 개수를 구한다.    
+
+루트노드    홀짝트리    역홀짝
+6
+
+6
+3
+24
+
+6은 노드 번호가 짝수인데 자식 개수가 짝수개라 역짝수 노드
+3은 노드 번호가 홀수인데 자식 개수가 2개라 역홀수 노드
+4도 노드 번호가 짝수인데 자식 개수가 짝수개라 짝수 노드
+2는 짝수 트리
+
+-> 따라서 홀짝노드와 역홀짝 노드를 동시에 가져서 홀짝트리 혹은 역홀짝 트리가 될 수 없음
+
+루트노드    홀짝트리    역홀짝
+2
+
+2
+3
+46
+
+2는 짝수 번호에 자식이 1개라 역짝수노드
+3은 역홀수노드
+4, 6은 짝수노드
+
+-> 따라서 둘다가져서 삠
+
+0) 모든 노드를 돌아가면서 루트로 둔다.
+1) 각 노드를 훑는다.
+2) 각 노드의 본인의 노드 번호가 홀짝인지 체크
+    1] 본인의 노드 번호가 홀
+        자식 노드 개수가 홀 -> 홀수노드
+        자식 노드 개수가 짝 -> 역홀수노드
+    2] 본인의 노드 번호가 짝
+        자식 노드 개수가 홀 -> 역짝수노드
+        자식 노드 개수가 짝 -> 짝수노드
+3) 다음으로 자식 노드로 가서 2)번을 반복한다.
+4) 이걸 bfs으로 탐색
+    1] 방문한 곳은 루트 노드임
+        
+루트 노드를 새로 선택할 때 마다 짝, 홀, 역홀, 역짝노드의 개수를 구한다.
 '''
 
-n = int(input())
-board = [list(input()) for _ in range(n)]
-fin_max_cnt = 0
+from collections import deque
 
-# print(board)
-
-# 행 검사
-def check_raw(raw):
-    global fin_max_cnt
-    max_seq_cnt = 0
+def bfs(root):
+    global result
+    types = [0, 0, 0, 0] # 짝수 노드, 홀수 노드, 역짝수 노드, 역홀수 노드
+    q = deque()
+    q.append(root)
+    visit[root] = True
     
-    each_cnt = 1
-    for i in range(n-1): #ccp
-        if(board[raw][i] == board[raw][i+1]):
-            each_cnt += 1
-        else:
-            if(max_seq_cnt < each_cnt):
-                max_seq_cnt = each_cnt
-                each_cnt = 1
-        # print(board[raw][i], each_cnt)
+    # 2) 각 노드의 본인의 노드 번호가 홀짝인지 체크
+    #     1] 본인의 노드 번호가 홀
+    #         자식 노드 개수가 홀 -> 홀수노드
+    #         자식 노드 개수가 짝 -> 역홀수노드
+    #     2] 본인의 노드 번호가 짝
+    #         자식 노드 개수가 홀 -> 역짝수노드
+    #         자식 노드 개수가 짝 -> 짝수노드
     
-    if(max_seq_cnt < each_cnt):
-        max_seq_cnt = each_cnt
-        each_cnt = 1
-     
-    if(fin_max_cnt < max_seq_cnt):           
-        fin_max_cnt = max_seq_cnt
-        
-# 열 검사
-def check_col(col):
-    global fin_max_cnt
-    max_seq_cnt = 0
-    
-    each_cnt = 1
-    for i in range(n-1): #ccp
-        if(board[i][col] == board[i+1][col]):
-            each_cnt += 1
-        else:
-            if(max_seq_cnt < each_cnt):
-                max_seq_cnt = each_cnt
-                each_cnt = 1
-        # print(board[raw][i], each_cnt)
-        
-    if(max_seq_cnt < each_cnt):
-        max_seq_cnt = each_cnt
-        each_cnt = 1
-     
-    if(fin_max_cnt < max_seq_cnt):           
-        fin_max_cnt = max_seq_cnt
-    
-
-# for i in range(n-1):
-#     for j in range(n-1):
-for i in range(n):
-    for j in range(n):
-        # 가장 아래이면, 아래 안 봄
-        if(i != n-1):
-            # 아래
-            if(board[i][j] != board[i+1][j]):
-                # 바꾸고
-                board[i][j], board[i+1][j] = board[i+1][j], board[i][j]
+    while(q):
+        x = q.popleft()
+        # print(x, visit)
+        if(x % 2 == 0): # 본인 노드 번호가 짝
+            cnt = 0
+            for ele in graph[x]:
+                if(visit[ele] == False):
+                    cnt += 1
             
-        # 행 검사
-        check_raw(i)
-                            
-        # 열 검사
-        check_col(j)
-        # print(*board, sep='\n')
+            if(cnt % 2 == 0): # 자식 노드 개수가 짝
+                types[0] += 1
+            else: # 자식 노드 개수 홀
+                types[2] += 1
+        else: # 본인 노드 번호가 홀
+            cnt = 0
+            for ele in graph[x]:
+                if(visit[ele] == False):
+                    cnt += 1
+                    
+            if(cnt % 2 == 0): # 자식 노드 개수가 짝
+                types[3] += 1
+            else: # 자식 노드 개수 홀
+                types[1] += 1
+                
+        for i in graph[x]:
+            if(not visit[i]): # 부모 노드는 안 봄
+                q.append(i)
+                visit[i] = True
+        # print(root)
+                
+    print(root, types)
+    if(types[0] == 0 and types[1] == 0): # 여홀짝 트리
+        result[1] += 1
+    elif(types[2] == 0 and types[3] == 0): # 홀짝 트리
+        result[0] += 1
+        
             
         
-        # 원상복구
-        if(i != n-1):
-            if(board[i][j] != board[i+1][j]):
-                # 바꾸고
-                board[i][j], board[i+1][j] = board[i+1][j], board[i][j]
-                
-        # 우
-        if(j != n-1):
-            if(board[i][j] != board[i][j+1]):
-                # 바꾸고
-                board[i][j], board[i][j+1] = board[i][j+1], board[i][j]
-                
-        # 행 검사
-        check_raw(i)
-                            
-        # 열 검사
-        check_col(j)
-        # print(i, j, fin_max_cnt)
-        
-        
-        # 우
-        if(j != n-1):
-            if(board[i][j] != board[i][j+1]):
-                # 바꾸고
-                board[i][j], board[i][j+1] = board[i][j+1], board[i][j]        
-                
-print(fin_max_cnt)                
+result = [0, 0]
+
+nodes = [2, 3, 4, 6]
+edges = [[2, 3], [3, 4], [3, 6]]
+
+# 모든 노드를 돌아가면서 루트로 둔다.
+# 근데 이걸 꼭 꼽데기에 둘 필요 없이 그냥 양방향 그래프로 만들고 해도 될 듯
+
+graph = [[] for _ in range(max(nodes)+1)]
+for x, y in edges:
+    graph[x].append(y)
+    graph[y].append(x)
+    
+print(graph)
+
+# nodes를 for로 호출해서 호출된 것을 루트 노드로 봄
+for root in nodes:
+    visit = [False] * (max(nodes)+1)
+    bfs(root)
+    
+print(result)
