@@ -1,159 +1,66 @@
 '''
-루트 노드가 설정되지 않은 1개 이상의 트리가 있다. 모든 노드는 서로 다른 번호를 가진다.
-노드 : 홀수, 짝, 역홀, 역짝 노드 중 하나
-
-홀수 노드 : 노드의 번호가 홀수이며 자식 노드의 개수가 홀수
-짝 : 노드의 번호가 짝수이며 자식 노드 개수 짝수(0=짝수)
-역홀 : 노드 번호가 홀수이며 자식 노드 개수가 짝수
-역짝 : 노 번 = 짝수, 자식 노드 개수 홀수
-
-각 트리에 루트 노드를 설정했을 때 홀짝 트기가 될 수 있는 트리의 개수와 역홀짝 트리가
-될 수 있는 트리의 개수를 구하려고 한다.
-
-홀짝 트리 : 홀수노드와 짝수노드로만 이루어진 트리
-역홀짝 트리 : 역 홀수, 역 짝수 노드로만 이루어진 트리
-
-ex) 2, 3, 4, 6 노드
-루트노드    홀짝트리    역홀짝
-3           1           0
-
-3
-246 
--> 3은 노드 번호가 홀수이고 자식 노드 개수가 홀수라 홀수 노드
-2,4, 6이 노드 번호가 짝수이고 자식 노드 개수가 0이라 짝수 개라 다 짝수 노드
-따라서 3을 루트 노드로 하면 홀짝 트리가 됨
-
-간선 정보 유추 : 위 문제로 보아 [2, 3] [3, 4] [4, 6]
+n개의 수로 이루어진 수열이 주어진다. 수와수 사이에 넣을 수 있는 n-1개 연산자가 있다.
+식의 계산은 우선순위 무시하고 앞에서부터 진행한다. 나눗셈은 몫만 취하고
+음수를 양수로 나눈ㄹ때는 양수로 바꾸고 몫을 취하고 그 몫을 음수로 바꾼다.
+만들 수 있는 식의 결과의 최대 최소를 구하라
 
 1. 모경수(prt, n=1)
-0) 모든 노드를 돌아가면서 루트로 둔다.
-1) 각 노드를 훑는다.
-2) 각 노드의 본인의 노드 번호가 홀짝인지 체크
-    1] 본인의 노드 번호가 홀
-        자식 노드 개수가 홀 -> 홀수노드
-        자식 노드 개수가 짝 -> 역홀수노드
-    2] 본인의 노드 번호가 짝
-        자식 노드 개수가 홀 -> 역짝수노드
-        자식 노드 개수가 짝 -> 짝수노드
-        
-짝, 홀, 역홀, 역짝노드의 개수를 구한다.    
+1) 백으로 탐색 + 방문
 
-루트노드    홀짝트리    역홀짝
-6
+* n : 수의 개수
+수열
+덧셈, 뺼셈, 곱셈, 나눗셈 개수
+출력 : 최대 최소
 
-6
-3
-24
-
-6은 노드 번호가 짝수인데 자식 개수가 짝수개라 역짝수 노드
-3은 노드 번호가 홀수인데 자식 개수가 2개라 역홀수 노드
-4도 노드 번호가 짝수인데 자식 개수가 짝수개라 짝수 노드
-2는 짝수 트리
-
--> 따라서 홀짝노드와 역홀짝 노드를 동시에 가져서 홀짝트리 혹은 역홀짝 트리가 될 수 없음
-
-루트노드    홀짝트리    역홀짝
-2
-
-2
-3
-46
-
-2는 짝수 번호에 자식이 1개라 역짝수노드
-3은 역홀수노드
-4, 6은 짝수노드
-
--> 따라서 둘다가져서 삠
-
-0) 모든 노드를 돌아가면서 루트로 둔다.
-1) 각 노드를 훑는다.
-2) 각 노드의 본인의 노드 번호가 홀짝인지 체크
-    1] 본인의 노드 번호가 홀
-        자식 노드 개수가 홀 -> 홀수노드
-        자식 노드 개수가 짝 -> 역홀수노드
-    2] 본인의 노드 번호가 짝
-        자식 노드 개수가 홀 -> 역짝수노드
-        자식 노드 개수가 짝 -> 짝수노드
-3) 다음으로 자식 노드로 가서 2)번을 반복한다.
-4) 이걸 bfs으로 탐색
-    1] 방문한 곳은 루트 노드임
-        
-루트 노드를 새로 선택할 때 마다 짝, 홀, 역홀, 역짝노드의 개수를 구한다.
+2. 시복 : n^3
 '''
 
-from collections import deque
+max_r = int(1e9) * -1
+min_r = int(1e9)
 
-def bfs(root):
-    global result
-    types = [0, 0, 0, 0] # 짝수 노드, 홀수 노드, 역짝수 노드, 역홀수 노드
-    q = deque()
-    q.append(root)
-    visit[root] = True
+def back(calc, arrs_idx):
+    global min_r,max_r
     
-    # 2) 각 노드의 본인의 노드 번호가 홀짝인지 체크
-    #     1] 본인의 노드 번호가 홀
-    #         자식 노드 개수가 홀 -> 홀수노드
-    #         자식 노드 개수가 짝 -> 역홀수노드
-    #     2] 본인의 노드 번호가 짝
-    #         자식 노드 개수가 홀 -> 역짝수노드
-    #         자식 노드 개수가 짝 -> 짝수노드
+    if(arrs_idx == n):
+        # print(max_r)
+        max_r = max(max_r, calc)
+        min_r = min(min_r, calc)
+        return
     
-    while(q):
-        x = q.popleft()
-        # print(x, visit)
-        if(x % 2 == 0): # 본인 노드 번호가 짝
-            cnt = 0
-            for ele in graph[x]:
-                if(visit[ele] == False):
-                    cnt += 1
-            
-            if(cnt % 2 == 0): # 자식 노드 개수가 짝
-                types[0] += 1
-            else: # 자식 노드 개수 홀
-                types[2] += 1
-        else: # 본인 노드 번호가 홀
-            cnt = 0
-            for ele in graph[x]:
-                if(visit[ele] == False):
-                    cnt += 1
-                    
-            if(cnt % 2 == 0): # 자식 노드 개수가 짝
-                types[3] += 1
-            else: # 자식 노드 개수 홀
-                types[1] += 1
-                
-        for i in graph[x]:
-            if(not visit[i]): # 부모 노드는 안 봄
-                q.append(i)
-                visit[i] = True
-        # print(root)
-                
-    print(root, types)
-    if(types[0] == 0 and types[1] == 0): # 여홀짝 트리
-        result[1] += 1
-    elif(types[2] == 0 and types[3] == 0): # 홀짝 트리
-        result[0] += 1
-        
-            
-        
-result = [0, 0]
+    for i in range(n-1):
+        # 연산자 종류를 훑음
+        if(not visit[i]):
+            visit[i] = True
+            if(calcs_arr[i] == '+'):
+                back(calc + arrs[arrs_idx], arrs_idx+1)
+            elif(calcs_arr[i] == '-'):
+                back(calc - arrs[arrs_idx], arrs_idx+1)
+            elif(calcs_arr[i] == '*'):
+                back(calc * arrs[arrs_idx], arrs_idx+1)
+            elif(calcs_arr[i] == '//'):
+                # 음수이면 
+                if(calc < 0):
+                    calc *= -1
+                    calc //= arrs[arrs_idx]
+                    calc *= -1
+                else:
+                    calc //= arrs[arrs_idx]
+                back(calc, arrs_idx+1)
+            visit[i] = False
 
-nodes = [2, 3, 4, 6]
-edges = [[2, 3], [3, 4], [3, 6]]
+n = int(input())
+arrs = list(map(int, input().split()))
+calcs_cnt = list(map(int, input().split()))
+calc_type = ['+', '-', '*', '//']
+calcs_arr = []
+for i in range(4):
+    for _ in range(calcs_cnt[i]):
+        calcs_arr.append(calc_type[i])
 
-# 모든 노드를 돌아가면서 루트로 둔다.
-# 근데 이걸 꼭 꼽데기에 둘 필요 없이 그냥 양방향 그래프로 만들고 해도 될 듯
+# print(calcs_arr)
+visit = [False] * len(calcs_arr)
 
-graph = [[] for _ in range(max(nodes)+1)]
-for x, y in edges:
-    graph[x].append(y)
-    graph[y].append(x)
-    
-print(graph)
+back(arrs[0], 1)
 
-# nodes를 for로 호출해서 호출된 것을 루트 노드로 봄
-for root in nodes:
-    visit = [False] * (max(nodes)+1)
-    bfs(root)
-    
-print(result)
+print(max_r)
+print(min_r)
