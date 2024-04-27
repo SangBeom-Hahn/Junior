@@ -1,51 +1,42 @@
-'''
-x에 할 수 있는 연산은 다음과 같다.
-1) 3으로 나눠 떨어지면 3으로 나눈다.
-2) 2로 나눠 떨어지면 2로 나눈다
-3) 1을 뺀다.
+from collections import deque
 
-정수 n이 있을 때 연산 3개를 적절히 사용해서 1을 만드려고 한다. 
-
-1. 모경수
-1) 결과값
-2) 점화식
-3) base
-    1] 0 dp 배열, -1 저장소 배열
-    2] 2부터 시작
-
-* n
-출력 : 연산을 사용하는 횟수의 최소값, 1f로 만드는 방법에 포함되어 있느 수
-
-2. 시복 : nlogn
-'''
-
-n = int(input())
-dp = [0] * (10**6+1)
-store = [-1]* (10**6+1)
-
-for i in range(2, n+1):
-    dp[i] = dp[i-1] + 1
-    store[i] = i-1
+def bfs(a, b, c, d):
+    # 각 상태에 도달하는 데 필요한 최소 행동 횟수를 저장하는 리스트
+    dist = [[[0]*201 for _ in range(201)] for _ in range(201)]
+    # 큐에 넣는 아이템은 (현재 상태, 행동 횟수)
+    q = deque([(0, 0, c, 0)])
     
-    if(i % 3 == 0):
-        if(dp[i] > dp[i//3]+1):
-            dp[i] = min(dp[i], dp[i//3] + 1)
-            store[i] = i//3
+    while q:
+        x, y, z, cnt = q.popleft()
         
-    if(i % 2 == 0):
-        if(dp[i] > dp[i//2]+1):
-            dp[i] = min(dp[i], dp[i//2] + 1)
-            store[i] = i//2
-        
-# print(dp[:11])
-# print(store[:11])
+        if x == d or y == d or z == d:
+            return cnt
 
-print(dp[n])
+        # 현재 상태에서 가능한 모든 행동을 시도
+        for nx, ny, nz in [(x, y, 0), (x, 0, z), (0, y, z), (x, y, c), (x, b, z), (a, y, z)]:
+            # 아직 방문하지 않은 상태의 경우
+            if dist[nx][ny][nz] == 0:
+                dist[nx][ny][nz] = cnt + 1
+                q.append((nx, ny, nz, cnt+1))
+                
+        # x에서 y로, x에서 z로, y에서 x로, y에서 z로, z에서 x로, z에서 y로 액체를 이동
+        for nx, ny, nz in [(x-min(x,b-y), y+min(x,b-y), z), (x-min(x,c-z), y, z+min(x,c-z)), (x+min(y,a-x), y-min(y,a-x), z), (x, y-min(y,c-z), z+min(y,c-z)), (x+min(z,a-x), y, z-min(z,a-x)), (x, y+min(z,b-y), z-min(z,b-y))]:
+            if dist[nx][ny][nz] == 0:
+                dist[nx][ny][nz] = cnt + 1
+                q.append((nx, ny, nz, cnt+1))
+                
+    return -1
 
-want = n
-while(True):
-    print(want, end = ' ')
-    want = store[want]
-    
-    if(want == -1):
-        break
+# 입력
+a, b, c, d = 3, 5, 7, 1
+
+# 출력
+result = bfs(a, b, c, d)
+if result != -1:
+    print(result)
+else:
+    print("-1")
+
+
+# print(bfs(3, 5, 7, 1)) # 4
+# print(bfs(3, 6, 9, 4)) # -1
