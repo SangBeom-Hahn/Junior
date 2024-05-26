@@ -1,31 +1,46 @@
+'''
+수빈이는 n, 동생은 k 
+수빈이는 걷거나 순간이동 가능, 수빈이 위치 x 일 떄
+    걷기 : 1초 후 x-1, x+1로 이동
+    순간이동 : 1초 후 2*x로 이동
+    
+수빈이가 동생을 찾을 수 있는 가장 빠른 시간이 몇 초 후이냐    
+
+1. 모경수(prt, n=1)
+1) bfs로 방문 탐색
+
+* n, k : 수빈 동생 위치
+출 : 가장 빠른 시간
+2. 시복 : nlogn
+'''
+
 from collections import deque
-
 def bfs(n):
-    queue = deque()
-    queue.append(n)
-    distances[n] = 0
-
-    while(queue):
-        x = queue.popleft()
-        dx[2] = x
+    q = deque()
+    q.append(n)
+    dis[n] = 0
+    
+    while(q):
+        print(dis[:20])
+        print(q)
+        x = q.popleft()
         if(x == k):
-            return distances[k]
-
+            return dis[x]
+        
+        dx[2] = x
         for i in range(3):
             nx = x + dx[i]
-
-            if(nx < 0 or nx > MAX):
+            
+            if(nx < 0 or nx > 100000):
                 continue
+            
+            if(dis[nx] == -1):
+                q.append(nx)
+                dis[nx] = dis[x] + 1
 
-            if(distances[nx] > distances[x] + 1): # 해석 : 이동할 곳보다 내 현재 위치 +1이 작으면 = 점프를 1로 해서 dis[2]이 2가 되었는데 점프를 2로 하면 1만에 갈 수 있으니!!라는 생각
-                distances[nx] = distances[x] + 1
-                queue.append(nx)
+n, k = map(int, input().split())
+dis = [-1] * 1000001
 
-if (__name__ == "__main__"):
-    n, k = map(int, input().split())
-    INF = 999999999
-    MAX = 100000
-    distances = [INF] * (MAX+1) # 거리
-    dx = [-1, 1, 0]
+dx = [-1, 1, 0]
 
-    print(bfs(n))
+print(bfs(n))
